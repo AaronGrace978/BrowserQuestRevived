@@ -1,5 +1,6 @@
 (function () {
   var TOKEN_KEY = 'bq_admin_token';
+  var currentModel = '';
 
   function $(id) {
     return document.getElementById(id);
@@ -43,10 +44,48 @@
     $(id).textContent = isSet ? 'Key is set on server' : 'No key stored';
   }
 
+  function selectedModel() {
+    var custom = ($('ai_model_custom').value || '').trim();
+    if (custom) {
+      return custom;
+    }
+    return $('ai_model').value || '';
+  }
+
+  function fillModelDropdown(models, preferred) {
+    var select = $('ai_model');
+    var list = models || [];
+    select.innerHTML = '';
+
+    if (list.length === 0) {
+      var empty = document.createElement('option');
+      empty.value = '';
+      empty.textContent = 'No models yet — refresh or type a custom id';
+      select.appendChild(empty);
+      return;
+    }
+
+    if (preferred && list.indexOf(preferred) === -1) {
+      list = [preferred].concat(list);
+    }
+
+    list.forEach(function (id) {
+      var opt = document.createElement('option');
+      opt.value = id;
+      opt.textContent = id;
+      select.appendChild(opt);
+    });
+
+    if (preferred) {
+      select.value = preferred;
+    }
+  }
+
   function fillForm(status) {
+    currentModel = status.ai_model || '';
     $('ai_enabled').checked = !!status.ai_enabled;
     $('ai_provider').value = status.ai_provider || 'openai';
-    $('ai_model').value = status.ai_model || '';
+    $('ai_model_custom').value = '';
     $('ai_timeout_ms').value = status.ai_timeout_ms || 12000;
     $('ollama_base_url').value = status.ollama_base_url || '';
     $('ollama_cloud_base_url').value = status.ollama_cloud_base_url || '';
@@ -62,21 +101,17 @@
   }
 
   function loadModels() {
+    var provider = $('ai_provider').value || 'openai';
     $('models-message').textContent = 'Loading models…';
-    return api('/api/admin/ai/models').then(function (result) {
-      var list = $('model-list');
-      list.innerHTML = '';
+    return api('/api/admin/ai/models?provider=' + encodeURIComponent(provider)).then(function (result) {
       if (!result.ok) {
+        fillModelDropdown([], currentModel);
         $('models-message').textContent = (result.body && result.body.message) || 'Could not load models';
         return;
       }
-      (result.body.models || []).forEach(function (id) {
-        var opt = document.createElement('option');
-        opt.value = id;
-        list.appendChild(opt);
-      });
+      fillModelDropdown(result.body.models || [], currentModel || selectedModel());
       $('models-message').textContent = result.body.message ||
-        ((result.body.models || []).length + ' models available — type or pick one');
+        ((result.body.models || []).length + ' models in dropdown');
     });
   }
 
@@ -111,7 +146,16 @@
   });
 
   $('ai_provider').addEventListener('change', function () {
+    currentModel = '';
+    $('ai_model_custom').value = '';
     loadModels();
+  });
+
+  $('ai_model').addEventListener('change', function () {
+    currentModel = $('ai_model').value;
+    if ($('ai_model_custom').value.trim() === '') {
+      // keep custom empty so dropdown wins
+    }
   });
 
   $('ai-form').addEventListener('submit', function (event) {
@@ -120,10 +164,17 @@
     statusEl.className = 'status';
     statusEl.textContent = 'Saving…';
 
+    var model = selectedModel();
+    if (!model) {
+      statusEl.className = 'status err';
+      statusEl.textContent = 'Pick a model from the dropdown or enter a custom model id.';
+      return;
+    }
+
     var body = {
       ai_enabled: $('ai_enabled').checked,
       ai_provider: $('ai_provider').value,
-      ai_model: $('ai_model').value.trim(),
+      ai_model: model,
       ai_timeout_ms: parseInt($('ai_timeout_ms').value, 10) || 12000,
       ollama_base_url: $('ollama_base_url').value.trim(),
       ollama_cloud_base_url: $('ollama_cloud_base_url').value.trim(),

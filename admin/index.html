@@ -42,10 +42,15 @@
 
       <label>
         Model
-        <input type="text" id="ai_model" list="model-list" placeholder="e.g. gpt-4o-mini" autocomplete="off">
-        <datalist id="model-list"></datalist>
+        <select id="ai_model">
+          <option value="">Loading models…</option>
+        </select>
       </label>
-      <button type="button" id="refresh-models" class="secondary">Refresh model list</button>
+      <label>
+        Or custom model id
+        <input type="text" id="ai_model_custom" placeholder="optional override, e.g. gpt-4o-mini" autocomplete="off">
+      </label>
+      <button type="button" id="refresh-models" class="secondary">Refresh model dropdown</button>
       <p id="models-message" class="hint"></p>
 
       <label>

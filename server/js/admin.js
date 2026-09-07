@@ -21,6 +21,49 @@ var ANTHROPIC_MODEL_SUGGESTIONS = [
     'claude-3-opus-latest'
 ];
 
+var OPENAI_MODEL_SUGGESTIONS = [
+    'gpt-4o-mini',
+    'gpt-4o',
+    'gpt-4.1-mini',
+    'gpt-4.1',
+    'gpt-4.1-nano',
+    'o4-mini',
+    'o3-mini',
+    'chatgpt-4o-latest'
+];
+
+var OLLAMA_MODEL_SUGGESTIONS = [
+    'llama3.2',
+    'llama3.1',
+    'llama3',
+    'mistral',
+    'mixtral',
+    'qwen2.5',
+    'gemma2',
+    'phi3',
+    'deepseek-r1'
+];
+
+function uniqueSorted(list) {
+    var seen = {};
+    var out = [];
+    (list || []).forEach(function(id) {
+        if (!id || seen[id]) {
+            return;
+        }
+        seen[id] = true;
+        out.push(id);
+    });
+    return out.sort();
+}
+
+function mergeCatalog(live, curated, message) {
+    return {
+        models: uniqueSorted([].concat(curated || [], live || [])),
+        message: message || ''
+    };
+}
+
 function isLoopbackAddress(address) {
     if (!address) {
         return false;
@@ -119,7 +162,7 @@ function serveAdminStatic(pathname, response) {
 
 function listOpenAiModels(apiKey) {
     if (!apiKey) {
-        return Promise.resolve({ models: [], message: 'OpenAI API key not set' });
+        return Promise.resolve(mergeCatalog([], OPENAI_MODEL_SUGGESTIONS, 'Showing common OpenAI models (add a key, then Refresh for your full account list)'));
     }
     return fetch('https://api.openai.com/v1/models', {
         headers: { Authorization: 'Bearer ' + apiKey }
@@ -132,16 +175,15 @@ function listOpenAiModels(apiKey) {
                 .map(function(m) { return m.id; })
                 .filter(function(id) {
                     return /gpt|o1|o3|o4|chatgpt/i.test(id);
-                })
-                .sort();
-            return { models: models, message: '' };
+                });
+            return mergeCatalog(models, OPENAI_MODEL_SUGGESTIONS, 'Live OpenAI models + common favorites');
         });
     }).catch(function(err) {
-        return { models: [], message: String(err.message || err) };
+        return mergeCatalog([], OPENAI_MODEL_SUGGESTIONS, 'Using common OpenAI models (' + String(err.message || err) + ')');
     });
 }
 
-function listOllamaModels(baseUrl, apiKey) {
+function listOllamaModels(baseUrl, apiKey, curated) {
     var root = (baseUrl || 'http://127.0.0.1:11434').replace(/\/$/, '');
     var headers = {};
     if (apiKey) {
@@ -154,11 +196,11 @@ function listOllamaModels(baseUrl, apiKey) {
             }
             var models = (body.models || []).map(function(m) {
                 return m.name || m.model;
-            }).filter(Boolean).sort();
-            return { models: models, message: '' };
+            }).filter(Boolean);
+            return mergeCatalog(models, curated, 'Installed/available models + common suggestions');
         });
     }).catch(function(err) {
-        return { models: [], message: String(err.message || err) };
+        return mergeCatalog([], curated, 'Using common Ollama model ids (' + String(err.message || err) + ')');
     });
 }
 
@@ -168,21 +210,23 @@ function listModels(config) {
         return listOpenAiModels(config.openai_api_key || process.env.OPENAI_API_KEY);
     }
     if (provider === 'anthropic') {
-        if (!(config.anthropic_api_key || process.env.ANTHROPIC_API_KEY)) {
-            return Promise.resolve({ models: ANTHROPIC_MODEL_SUGGESTIONS, message: 'Showing common Anthropic model ids (set key to use them)' });
-        }
-        return Promise.resolve({ models: ANTHROPIC_MODEL_SUGGESTIONS, message: '' });
+        var msg = (config.anthropic_api_key || process.env.ANTHROPIC_API_KEY)
+            ? 'Anthropic model catalog'
+            : 'Showing Anthropic models (set key to use them)';
+        return Promise.resolve(mergeCatalog([], ANTHROPIC_MODEL_SUGGESTIONS, msg));
     }
     if (provider === 'ollama-cloud') {
         return listOllamaModels(
             config.ollama_cloud_base_url || 'https://ollama.com',
-            config.ollama_api_key || process.env.OLLAMA_API_KEY
+            config.ollama_api_key || process.env.OLLAMA_API_KEY,
+            OLLAMA_MODEL_SUGGESTIONS
         );
     }
     if (provider === 'ollama') {
         return listOllamaModels(
             config.ollama_base_url || 'http://127.0.0.1:11434',
-            config.ollama_api_key || process.env.OLLAMA_API_KEY
+            config.ollama_api_key || process.env.OLLAMA_API_KEY,
+            OLLAMA_MODEL_SUGGESTIONS
         );
     }
     return Promise.resolve({ models: [], message: 'Unknown provider' });
@@ -247,7 +291,12 @@ function createAdminHandler(ctx) {
         }
 
         if (pathname === '/api/admin/ai/models' && req.method === 'GET') {
-            listModels(ctx.config).then(function(result) {
+            var providerOverride = parsedUrl.query && parsedUrl.query.provider;
+            var modelConfig = Object.assign({}, ctx.config);
+            if (providerOverride) {
+                modelConfig.ai_provider = String(providerOverride);
+            }
+            listModels(modelConfig).then(function(result) {
                 sendJson(response, 200, result);
             });
             return true;
