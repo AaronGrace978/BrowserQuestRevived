@@ -19,7 +19,8 @@ define(['area'], function(Area) {
             this.victoryPlaying = false;
             this.musicNames = [
                 "village", "beach", "forest", "cave", "desert", "lavaland", "boss",
-                "theme", "combat_rats", "combat_goblins", "combat_bats", "victory"
+                "theme", "woods", "mountain", "indoor",
+                "combat_rats", "combat_goblins", "combat_bats", "combat_skeletons", "victory"
             ];
             this.soundNames = ["loot", "hit1", "hit2", "hurt", "heal", "chat", "revive", "death", "firefox", "achievement", "kill1", "kill2", "noloot", "teleport", "chest", "npc", "npc-end"];
             
@@ -193,16 +194,18 @@ define(['area'], function(Area) {
             if(_.include(kinds, Types.Entities.BAT)) {
                 return 'combat_bats';
             }
-            if(_.include(kinds, Types.Entities.GOBLIN) ||
-               _.include(kinds, Types.Entities.SNAKE) ||
-               _.include(kinds, Types.Entities.SKELETON) ||
+            if(_.include(kinds, Types.Entities.SKELETON) ||
                _.include(kinds, Types.Entities.SKELETON2) ||
-               _.include(kinds, Types.Entities.OGRE) ||
-               _.include(kinds, Types.Entities.CRAB) ||
-               _.include(kinds, Types.Entities.EYE) ||
                _.include(kinds, Types.Entities.SPECTRE) ||
                _.include(kinds, Types.Entities.DEATHKNIGHT) ||
                _.include(kinds, Types.Entities.BOSS)) {
+                return 'combat_skeletons';
+            }
+            if(_.include(kinds, Types.Entities.GOBLIN) ||
+               _.include(kinds, Types.Entities.SNAKE) ||
+               _.include(kinds, Types.Entities.OGRE) ||
+               _.include(kinds, Types.Entities.CRAB) ||
+               _.include(kinds, Types.Entities.EYE)) {
                 return 'combat_goblins';
             }
 
@@ -361,18 +364,11 @@ define(['area'], function(Area) {
         },
 
         /**
-         * After a combat kill, play the short victory sting then return to zone/theme.
+         * Play Enemy Defeated sting after every mob kill (including bosses),
+         * then return to combat music if still fighting, else zone/theme.
          */
         onMobKilled: function(kind) {
-            var stillFighting = !!this.getCombatMusicName();
-
-            if(stillFighting) {
-                this.updateMusic();
-                return;
-            }
-
-            if(!this.enabled || this.victoryPlaying) {
-                this.updateMusic();
+            if(!this.enabled) {
                 return;
             }
 
@@ -382,22 +378,40 @@ define(['area'], function(Area) {
                 return;
             }
 
+            // Restart sting if another kill lands during the previous one
+            if(this._victoryFinish) {
+                victory.removeEventListener('ended', this._victoryFinish);
+                this._victoryFinish = null;
+            }
+            if(this._victoryTimeout) {
+                clearTimeout(this._victoryTimeout);
+                this._victoryTimeout = null;
+            }
+
             this.victoryPlaying = true;
+            try {
+                victory.currentTime = 0;
+            } catch(e) {}
             this.transitionToMusic({ sound: victory, name: 'victory' });
 
             var self = this;
             var finish = function() {
                 victory.removeEventListener('ended', finish);
+                self._victoryFinish = null;
+                if(self._victoryTimeout) {
+                    clearTimeout(self._victoryTimeout);
+                    self._victoryTimeout = null;
+                }
                 self.victoryPlaying = false;
                 self.updateMusic();
             };
+            this._victoryFinish = finish;
             victory.addEventListener('ended', finish);
-            // Safety if ended event is missed
-            setTimeout(function() {
+            this._victoryTimeout = setTimeout(function() {
                 if(self.victoryPlaying) {
                     finish();
                 }
-            }, 12000);
+            }, 8000);
         }
     });
     
