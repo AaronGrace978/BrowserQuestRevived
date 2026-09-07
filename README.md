@@ -6,6 +6,8 @@ This repository — [AaronGrace978/BrowserQuestRevived](https://github.com/Aaron
 
 ![BrowserQuest Revival](client/img/common/revival.png)
 
+See the living **[Enhancement Roadmap](ROADMAP.md)** for public multiplayer, persistence, content, AI polish, and collaborator plans.
+
 ## Dedication
 
 ![Dedication](client/img/common/dedication.png)
