@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BrowserQuest AI Admin</title>
+  <link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body>
+  <main class="panel">
+    <header>
+      <h1>BrowserQuest AI Settings</h1>
+      <p class="sub">Keys stay on the server. Localhost is allowed automatically; remote access needs an admin token.</p>
+    </header>
+
+    <section id="token-gate" class="card hidden">
+      <h2>Admin token required</h2>
+      <p>This connection is not localhost. Enter the server <code>ADMIN_TOKEN</code> to continue.</p>
+      <label>
+        Token
+        <input type="password" id="token-input" autocomplete="off" placeholder="ADMIN_TOKEN">
+      </label>
+      <button type="button" id="token-save">Unlock</button>
+      <p id="token-error" class="error"></p>
+    </section>
+
+    <form id="ai-form" class="card hidden">
+      <label class="row">
+        <input type="checkbox" id="ai_enabled">
+        Enable AI NPC dialogue
+      </label>
+
+      <label>
+        Provider
+        <select id="ai_provider">
+          <option value="openai">OpenAI</option>
+          <option value="anthropic">Anthropic</option>
+          <option value="ollama-cloud">Ollama Cloud</option>
+          <option value="ollama">Ollama (local)</option>
+        </select>
+      </label>
+
+      <label>
+        Model
+        <input type="text" id="ai_model" list="model-list" placeholder="e.g. gpt-4o-mini" autocomplete="off">
+        <datalist id="model-list"></datalist>
+      </label>
+      <button type="button" id="refresh-models" class="secondary">Refresh model list</button>
+      <p id="models-message" class="hint"></p>
+
+      <label>
+        OpenAI API key
+        <input type="password" id="openai_api_key" placeholder="unchanged if blank" autocomplete="off">
+      </label>
+      <label class="row compact">
+        <input type="checkbox" id="clear_openai_api_key">
+        Clear OpenAI key
+      </label>
+      <p class="hint" id="openai_api_key_set"></p>
+
+      <label>
+        Anthropic API key
+        <input type="password" id="anthropic_api_key" placeholder="unchanged if blank" autocomplete="off">
+      </label>
+      <label class="row compact">
+        <input type="checkbox" id="clear_anthropic_api_key">
+        Clear Anthropic key
+      </label>
+      <p class="hint" id="anthropic_api_key_set"></p>
+
+      <label>
+        Ollama API key (cloud / optional local)
+        <input type="password" id="ollama_api_key" placeholder="unchanged if blank" autocomplete="off">
+      </label>
+      <label class="row compact">
+        <input type="checkbox" id="clear_ollama_api_key">
+        Clear Ollama key
+      </label>
+      <p class="hint" id="ollama_api_key_set"></p>
+
+      <label>
+        Local Ollama base URL
+        <input type="text" id="ollama_base_url" placeholder="http://127.0.0.1:11434">
+      </label>
+
+      <label>
+        Ollama Cloud base URL
+        <input type="text" id="ollama_cloud_base_url" placeholder="https://ollama.com">
+      </label>
+
+      <label>
+        Timeout (ms)
+        <input type="number" id="ai_timeout_ms" min="1000" step="500">
+      </label>
+
+      <label>
+        Set / rotate admin token (remote access)
+        <input type="password" id="admin_token" placeholder="unchanged if blank" autocomplete="off">
+      </label>
+      <label class="row compact">
+        <input type="checkbox" id="clear_admin_token">
+        Clear admin token
+      </label>
+      <p class="hint" id="admin_token_set"></p>
+
+      <div class="actions">
+        <button type="submit">Save settings</button>
+        <a class="link" href="/" target="_blank" rel="noopener">Open game</a>
+      </div>
+      <p id="form-status" class="status"></p>
+    </form>
+  </main>
+  <script src="/admin/admin.js"></script>
+</body>
+</html>

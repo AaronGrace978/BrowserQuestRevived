@@ -836,6 +836,7 @@ function(InfoManager, BubbleManager, Renderer, Map, Animation, Sprite, AnimatedT
                         self.player.log_info("Aggroed by " + mob.id + " at ("+self.player.gridX+", "+self.player.gridY+")");
                         self.client.sendAggro(mob);
                         mob.waitToAttack(self.player);
+                        self.audioManager.updateMusic();
                     }
                 });
 
@@ -1206,6 +1207,9 @@ function(InfoManager, BubbleManager, Renderer, Map, Animation, Sprite, AnimatedT
                                         if(self.camera.isVisible(entity)) {
                                             self.audioManager.playSound("kill"+Math.floor(Math.random()*2+1));
                                         }
+                                        if(entity instanceof Mob) {
+                                            self.audioManager.onMobKilled(entity.kind);
+                                        }
                                     
                                         self.updateCursor();
                                     });
@@ -1463,6 +1467,10 @@ function(InfoManager, BubbleManager, Renderer, Map, Animation, Sprite, AnimatedT
                     self.assignBubbleTo(entity);
                     self.audioManager.playSound("chat");
                 });
+
+                self.client.onNpcTalkReply(function(npcId, text) {
+                    self.onNpcTalkReplyFromServer(npcId, text);
+                });
             
                 self.client.onPopulationChange(function(worldPlayers, totalPlayers) {
                     if(self.nbplayers_callback) {
@@ -1503,6 +1511,10 @@ function(InfoManager, BubbleManager, Renderer, Map, Animation, Sprite, AnimatedT
             
             if(attacker.id !== this.playerId) {
                 target.addAttacker(attacker);
+            }
+
+            if(this.audioManager && (attacker.id === this.playerId || target.id === this.playerId)) {
+                this.audioManager.updateMusic();
             }
         },
 
@@ -1608,9 +1620,9 @@ function(InfoManager, BubbleManager, Renderer, Map, Animation, Sprite, AnimatedT
         /**
          *
          */
-        makeNpcTalk: function(npc) {
+        makeNpcTalkClassic: function(npc) {
             var msg;
-        
+
             if(npc) {
                 msg = npc.talk();
                 this.previousClickPosition = {};
@@ -1623,7 +1635,72 @@ function(InfoManager, BubbleManager, Renderer, Map, Animation, Sprite, AnimatedT
                     this.audioManager.playSound("npc-end");
                 }
                 this.tryUnlockingAchievement("SMALL_TALK");
-                
+
+                if(npc.kind === Types.Entities.RICK) {
+                    this.tryUnlockingAchievement("RICKROLLD");
+                }
+            }
+        },
+
+        clearPendingNpcTalk: function() {
+            if(this.pendingNpcTalkTimer) {
+                clearTimeout(this.pendingNpcTalkTimer);
+                this.pendingNpcTalkTimer = null;
+            }
+            this.pendingNpcTalkNpcId = null;
+        },
+
+        /**
+         *
+         */
+        makeNpcTalk: function(npc) {
+            var self = this;
+
+            if(!npc) {
+                return;
+            }
+
+            this.previousClickPosition = {};
+            this.createBubble(npc.id, "…");
+            this.assignBubbleTo(npc);
+            this.audioManager.playSound("npc");
+
+            this.clearPendingNpcTalk();
+            this.pendingNpcTalkNpcId = npc.id;
+            this.pendingNpcTalkTimer = setTimeout(function() {
+                if(self.pendingNpcTalkNpcId === npc.id) {
+                    self.clearPendingNpcTalk();
+                    self.makeNpcTalkClassic(npc);
+                }
+            }, 8000);
+
+            if(this.client && this.client.connection) {
+                this.client.sendNpcTalk(npc.id);
+            } else {
+                this.clearPendingNpcTalk();
+                this.makeNpcTalkClassic(npc);
+            }
+        },
+
+        onNpcTalkReplyFromServer: function(npcId, text) {
+            var npc = this.getEntityById(npcId);
+
+            if(this.pendingNpcTalkNpcId === npcId) {
+                this.clearPendingNpcTalk();
+            }
+
+            if(!text) {
+                if(npc) {
+                    this.makeNpcTalkClassic(npc);
+                }
+                return;
+            }
+
+            if(npc) {
+                this.createBubble(npc.id, text);
+                this.assignBubbleTo(npc);
+                this.audioManager.playSound("npc");
+                this.tryUnlockingAchievement("SMALL_TALK");
                 if(npc.kind === Types.Entities.RICK) {
                     this.tryUnlockingAchievement("RICKROLLD");
                 }
@@ -2185,7 +2262,29 @@ function(InfoManager, BubbleManager, Renderer, Map, Animation, Sprite, AnimatedT
         },
     
         say: function(message) {
-            this.client.sendChat(message);
+            var target = this.player && this.player.target;
+
+            if(target && target instanceof Npc) {
+                this.createBubble(this.player.id, message);
+                this.assignBubbleTo(this.player);
+                this.audioManager.playSound("chat");
+                this.createBubble(target.id, "…");
+                this.assignBubbleTo(target);
+
+                this.clearPendingNpcTalk();
+                this.pendingNpcTalkNpcId = target.id;
+                var self = this;
+                this.pendingNpcTalkTimer = setTimeout(function() {
+                    if(self.pendingNpcTalkNpcId === target.id) {
+                        self.clearPendingNpcTalk();
+                        self.makeNpcTalkClassic(target);
+                    }
+                }, 8000);
+
+                this.client.sendNpcTalk(target.id, message);
+            } else {
+                this.client.sendChat(message);
+            }
         },
     
         createBubble: function(id, message) {

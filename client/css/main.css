@@ -211,6 +211,11 @@ footer, header, hgroup, menu, nav, section {
     #authors div a {display:block;color:#fff;text-decoration:none;}
     #authors div a:hover, #credits h1 a:hover {color:#93C1FF;}
     #seb {clear:both;}
+    #revival-dedication {clear:both;margin:18px auto 8px;max-width:90%;font-size:0.55em;line-height:1.45;color:#fcda5c;}
+    #revival-dedication .dedication-line {margin:4px 0;}
+    #revival-dedication .dedication-line.muted {color:#cbb896;font-size:0.92em;}
+    #revival-dedication a {color:#93C1FF;text-decoration:none;}
+    #revival-dedication a:hover {color:#fff;}
 
     #portrait {display:none;}
 
@@ -230,6 +235,12 @@ footer, header, hgroup, menu, nav, section {
     #sharing .gplus {height:22px;width:22px;background:url('../img/common/gplus.png');margin:0 12px 0 0px;}
     #credits-link span {display:inline-block;margin-left:12px;}
     #credits-link span:hover {color:#fcda5c;cursor:pointer;}
+    #settings-link {display:inline-block;}
+    #settings-link a {display:inline-block;margin-left:12px;color:inherit;text-decoration:none;}
+    #settings-link a:hover {color:#fcda5c;cursor:pointer;}
+    #mozilla-link {display:inline-block;}
+    #mozilla-link a {display:inline-block;margin-left:12px;color:inherit;text-decoration:none;}
+    #mozilla-link a:hover {color:#fcda5c;cursor:pointer;}
     
     #sharing a:hover {-moz-transform:scale(1.2);-webkit-transform:scale(1.2);-o-transform:scale(1.2);transform:scale(1.2);}
     #sharing a:active {-moz-transform:scale(1);-webkit-transform:scale(1);-o-transform:scale(1);transform:scale(1);}

@@ -1,0 +1,116 @@
+:root {
+  --bg: #1a1410;
+  --panel: #2a2118;
+  --ink: #f2e6c9;
+  --muted: #b8a88a;
+  --accent: #fcda5c;
+  --line: #4a3b2a;
+  --error: #e07070;
+  --ok: #8fce7a;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Georgia, "Times New Roman", serif;
+  color: var(--ink);
+  background:
+    radial-gradient(ellipse at top, rgba(252, 218, 92, 0.08), transparent 55%),
+    linear-gradient(180deg, #120e0b, var(--bg));
+}
+
+.panel {
+  width: min(640px, calc(100% - 2rem));
+  margin: 2rem auto 3rem;
+}
+
+header h1 {
+  margin: 0 0 0.35rem;
+  font-size: 1.75rem;
+  color: var(--accent);
+}
+
+.sub, .hint {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.card {
+  margin-top: 1.25rem;
+  padding: 1.25rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.hidden { display: none; }
+
+label {
+  display: block;
+  margin: 0.85rem 0 0.35rem;
+  font-size: 0.95rem;
+}
+
+label.row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+label.compact {
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+input[type="text"],
+input[type="password"],
+input[type="number"],
+select {
+  width: 100%;
+  margin-top: 0.35rem;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: #17120e;
+  color: var(--ink);
+  font: inherit;
+}
+
+button, .secondary {
+  margin-top: 0.75rem;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid #8a6b20;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #fcda5c, #d4b43a);
+  color: #2a1d08;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button.secondary {
+  background: transparent;
+  color: var(--accent);
+  border-color: var(--line);
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.link {
+  color: var(--accent);
+}
+
+.status { margin-top: 0.75rem; }
+.status.ok { color: var(--ok); }
+.status.err { color: var(--error); }
+.error { color: var(--error); }
+code { color: var(--accent); }

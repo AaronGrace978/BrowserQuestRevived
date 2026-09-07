@@ -6,7 +6,11 @@ var cls = require("./lib/class"),
     Properties = require("./properties"),
     Formulas = require("./formulas"),
     check = require("./format").check,
-    Types = require("../../shared/js/gametypes");
+    Types = require("../../shared/js/gametypes"),
+    AiRouter = require("./ai/router");
+
+var NPC_TALK_COOLDOWN_MS = 2000;
+var NPC_TALK_MAX_DISTANCE = 5;
 
 module.exports = Player = Character.extend({
     init: function(connection, worldServer) {
@@ -23,6 +27,9 @@ module.exports = Player = Character.extend({
         this.lastCheckpoint = null;
         this.formatChecker = new FormatChecker();
         this.disconnectTimeout = null;
+        this.npcChatHistory = {};
+        this.lastNpcTalkAt = 0;
+        this.aiRouter = null;
         
         this.connection.listen(function(message) {
             var action = parseInt(message[0]);
@@ -215,6 +222,9 @@ module.exports = Player = Character.extend({
                     self.lastCheckpoint = checkpoint;
                 }
             }
+            else if(action === Types.Messages.NPCTALK) {
+                self.handleNpcTalk(message[1], message[2]);
+            }
             else {
                 if(self.message_callback) {
                     self.message_callback(message);
@@ -262,6 +272,73 @@ module.exports = Player = Character.extend({
     
     send: function(message) {
         this.connection.send(message);
+    },
+
+    sendNpcTalkReply: function(npcId, text) {
+        this.send([Types.Messages.NPCTALK_REPLY, npcId, text || ""]);
+    },
+
+    handleNpcTalk: function(npcId, userText) {
+        var self = this,
+            npc = this.server.getEntityById(npcId),
+            now = Date.now(),
+            kindName,
+            historyKey,
+            history,
+            promptText;
+
+        if(!npc || !Types.isNpc(npc.kind)) {
+            this.sendNpcTalkReply(npcId, "");
+            return;
+        }
+
+        if(Utils.distanceTo(this.x, this.y, npc.x, npc.y) > NPC_TALK_MAX_DISTANCE) {
+            this.sendNpcTalkReply(npcId, "");
+            return;
+        }
+
+        if(now - this.lastNpcTalkAt < NPC_TALK_COOLDOWN_MS) {
+            this.sendNpcTalkReply(npcId, "");
+            return;
+        }
+        this.lastNpcTalkAt = now;
+
+        if(!this.aiRouter || !this.aiRouter.isEnabled()) {
+            this.sendNpcTalkReply(npcId, "");
+            return;
+        }
+
+        kindName = Types.getKindAsString(npc.kind);
+        historyKey = kindName;
+        if(!this.npcChatHistory[historyKey]) {
+            this.npcChatHistory[historyKey] = [];
+        }
+        history = this.npcChatHistory[historyKey];
+
+        promptText = userText ? Utils.sanitize(String(userText)).substr(0, 60) : "";
+
+        this.aiRouter.generate(kindName, history, promptText).then(function(reply) {
+            if(!reply) {
+                self.sendNpcTalkReply(npcId, "");
+                return;
+            }
+
+            if(promptText) {
+                history.push({ role: 'user', content: promptText });
+            } else {
+                history.push({ role: 'user', content: '(greets you)' });
+            }
+            history.push({ role: 'assistant', content: reply });
+
+            while(history.length > AiRouter.MAX_HISTORY_TURNS * 2) {
+                history.shift();
+            }
+
+            self.sendNpcTalkReply(npcId, reply);
+        }).catch(function(err) {
+            log.error("NPC AI talk failed: " + err);
+            self.sendNpcTalkReply(npcId, "");
+        });
     },
     
     broadcast: function(message, ignoreSelf) {

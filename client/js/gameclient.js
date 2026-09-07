@@ -31,6 +31,7 @@ define(['player', 'entityfactory', 'lib/bison'], function(Player, EntityFactory,
             this.handlers[Types.Messages.KILL] = this.receiveKill;
             this.handlers[Types.Messages.HP] = this.receiveHitPoints;
             this.handlers[Types.Messages.BLINK] = this.receiveBlink;
+            this.handlers[Types.Messages.NPCTALK_REPLY] = this.receiveNpcTalkReply;
         
             this.useBison = false;
             this.enable();
@@ -45,16 +46,13 @@ define(['player', 'entityfactory', 'lib/bison'], function(Player, EntityFactory,
         },
         
         connect: function(dispatcherMode) {
-            var url = "ws://"+ this.host +":"+ this.port +"/",
+            var protocol = (window.location.protocol === 'https:') ? 'wss://' : 'ws://',
+                url = protocol + this.host + ":" + this.port + "/",
                 self = this;
             
             log.info("Trying to connect to server : "+url);
 
-            if(window.MozWebSocket) {
-                this.connection = new MozWebSocket(url);
-            } else {
-                this.connection = new WebSocket(url);
-            }
+            this.connection = new WebSocket(url);
             
             if(dispatcherMode) {
                 this.connection.onmessage = function(e) {
@@ -280,6 +278,15 @@ define(['player', 'entityfactory', 'lib/bison'], function(Player, EntityFactory,
                 this.chat_callback(id, text);
             }
         },
+
+        receiveNpcTalkReply: function(data) {
+            var npcId = data[1],
+                text = data[2];
+
+            if(this.npctalk_callback) {
+                this.npctalk_callback(npcId, text);
+            }
+        },
     
         receiveEquipItem: function(data) {
             var id = data[1],
@@ -431,6 +438,10 @@ define(['player', 'entityfactory', 'lib/bison'], function(Player, EntityFactory,
         onChatMessage: function(callback) {
             this.chat_callback = callback;
         },
+
+        onNpcTalkReply: function(callback) {
+            this.npctalk_callback = callback;
+        },
     
         onDropItem: function(callback) {
             this.drop_callback = callback;
@@ -507,6 +518,14 @@ define(['player', 'entityfactory', 'lib/bison'], function(Player, EntityFactory,
         sendChat: function(text) {
             this.sendMessage([Types.Messages.CHAT,
                               text]);
+        },
+
+        sendNpcTalk: function(npcId, text) {
+            if(text) {
+                this.sendMessage([Types.Messages.NPCTALK, npcId, text]);
+            } else {
+                this.sendMessage([Types.Messages.NPCTALK, npcId]);
+            }
         },
     
         sendLoot: function(item) {

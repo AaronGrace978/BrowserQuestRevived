@@ -27,7 +27,9 @@ Types = {
         HP: 23,
         BLINK: 24,
         OPEN: 25,
-        CHECK: 26
+        CHECK: 26,
+        NPCTALK: 27,
+        NPCTALK_REPLY: 28
     },
     
     Entities: {

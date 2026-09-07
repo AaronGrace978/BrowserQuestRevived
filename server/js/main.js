@@ -1,17 +1,41 @@
-
 var fs = require('fs'),
-    Metrics = require('./metrics');
+    Metrics = require('./metrics'),
+    AiRouter = require('./ai/router'),
+    aiSettings = require('./ai-settings'),
+    admin = require('./admin');
 
+function applyAiEnv(config) {
+    if (process.env.AI_ENABLED !== undefined) {
+        config.ai_enabled = process.env.AI_ENABLED === '1' || process.env.AI_ENABLED === 'true';
+    }
+    if (process.env.AI_PROVIDER) {
+        config.ai_provider = process.env.AI_PROVIDER;
+    }
+    if (process.env.AI_MODEL) {
+        config.ai_model = process.env.AI_MODEL;
+    }
+    if (process.env.OLLAMA_BASE_URL) {
+        config.ollama_base_url = process.env.OLLAMA_BASE_URL;
+    }
+    if (process.env.OLLAMA_CLOUD_BASE_URL) {
+        config.ollama_cloud_base_url = process.env.OLLAMA_CLOUD_BASE_URL;
+    }
+    if (process.env.AI_TIMEOUT_MS) {
+        config.ai_timeout_ms = parseInt(process.env.AI_TIMEOUT_MS, 10) || config.ai_timeout_ms;
+    }
+    return config;
+}
 
 function main(config) {
     var ws = require("./ws"),
         WorldServer = require("./worldserver"),
-        Log = require('log'),
+        Log = require('./log'),
         _ = require('underscore'),
         server = new ws.MultiVersionWebsocketServer(config.port),
         metrics = config.metrics_enabled ? new Metrics(config) : null;
         worlds = [],
         lastTotalPlayers = 0,
+        aiRouter = new AiRouter(config),
         checkPopulationInterval = setInterval(function() {
             if(metrics && metrics.isReady) {
                 metrics.getTotalPlayers(function(totalPlayers) {
@@ -35,12 +59,31 @@ function main(config) {
     };
     
     log.info("Starting BrowserQuest game server...");
+    if (aiRouter.isEnabled()) {
+        log.info("AI NPCs enabled via provider=" + (config.ai_provider || 'openai') + " model=" + (config.ai_model || '(unset)'));
+    } else {
+        log.info("AI NPCs disabled (classic scripted dialogue)");
+    }
+
+    server.setAdminHandler(admin.createAdminHandler({
+        config: config,
+        aiRouter: aiRouter,
+        onReload: function(updated) {
+            config = updated;
+            aiRouter.updateConfig(updated);
+            log.info("AI settings reloaded (enabled=" + !!updated.ai_enabled +
+                ", provider=" + (updated.ai_provider || '') +
+                ", model=" + (updated.ai_model || '') + ")");
+        }
+    }));
     
     server.onConnect(function(connection) {
         var world, // the one in which the player will be spawned
             connect = function() {
                 if(world) {
-                    world.connect_callback(new Player(connection, world));
+                    var player = new Player(connection, world);
+                    player.aiRouter = aiRouter;
+                    world.connect_callback(player);
                 }
             };
         
@@ -130,10 +173,18 @@ process.argv.forEach(function (val, index, array) {
 
 getConfigFile(defaultConfigPath, function(defaultConfig) {
     getConfigFile(customConfigPath, function(localConfig) {
-        if(localConfig) {
-            main(localConfig);
-        } else if(defaultConfig) {
-            main(defaultConfig);
+        var config = localConfig || defaultConfig;
+        if(config && localConfig && defaultConfig) {
+            Object.keys(defaultConfig).forEach(function(key) {
+                if (config[key] === undefined) {
+                    config[key] = defaultConfig[key];
+                }
+            });
+        }
+        if(config) {
+            config = applyAiEnv(config);
+            config = aiSettings.mergeAiIntoConfig(config, aiSettings.loadSecrets());
+            main(config);
         } else {
             console.error("Server cannot start without any configuration file.");
             process.exit(1);

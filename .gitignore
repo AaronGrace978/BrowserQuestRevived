@@ -3,6 +3,8 @@ client-build
 build.txt
 config_build.json
 config_local*
-client/audio/music
+server/ai-secrets.json
 .DS_Store
 *.swp
+/Music/
+

@@ -46,6 +46,19 @@ var _ = require('underscore'),
                 // WHO messages have a variable amount of params, all of which must be numbers.
                 return message.length > 0 && _.all(message, function(param) { return _.isNumber(param) });
             }
+            else if(type === Types.Messages.NPCTALK) {
+                // [npcId] or [npcId, userText]
+                if(message.length < 1 || message.length > 2) {
+                    return false;
+                }
+                if(!_.isNumber(message[0])) {
+                    return false;
+                }
+                if(message.length === 2 && !_.isString(message[1])) {
+                    return false;
+                }
+                return true;
+            }
             else {
                 log.error("Unknown message type: "+type);
                 return false;
