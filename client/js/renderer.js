@@ -73,9 +73,18 @@ function(Camera, Item, Character, Player, Timer) {
         
             this.createCamera();
         
+            this.context.imageSmoothingEnabled = false;
+            this.background.imageSmoothingEnabled = false;
+            this.foreground.imageSmoothingEnabled = false;
+            this.context.webkitImageSmoothingEnabled = false;
+            this.background.webkitImageSmoothingEnabled = false;
+            this.foreground.webkitImageSmoothingEnabled = false;
             this.context.mozImageSmoothingEnabled = false;
             this.background.mozImageSmoothingEnabled = false;
             this.foreground.mozImageSmoothingEnabled = false;
+            this.context.msImageSmoothingEnabled = false;
+            this.background.msImageSmoothingEnabled = false;
+            this.foreground.msImageSmoothingEnabled = false;
         
             this.initFont();
             this.initFPS();

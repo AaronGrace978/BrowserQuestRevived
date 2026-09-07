@@ -14,6 +14,7 @@ Repo: [AaronGrace978/BrowserQuestRevived](https://github.com/AaronGrace978/Brows
 - Admin settings UI (`/admin`) with provider + model dropdowns, localhost-or-token access
 - Custom soundtrack with quiet crossfades, combat cues, Enemy Defeated sting
 - Credits / dedication art for Mozilla + original creators
+- Client UI polish: crisp pixels, fixed mobile death screen, credits fit, chat NPC mode, AI HUD indicator, same-origin connect
 
 ---
 
@@ -23,7 +24,7 @@ Goal: strangers and collaborators can open a URL and play together.
 
 | Item | Notes |
 |------|--------|
-| Same-origin WebSocket host | Client should use the page hostname/port automatically (no `localhost` trap for remote players) |
+| Same-origin WebSocket host | **Done** — client prefers page hostname/port (no localhost trap for remote players) |
 | Hosted deploy | VPS / Fly / Railway / Render — document one recommended path |
 | HTTPS + WSS | Required if the site is served over HTTPS |
 | `ADMIN_TOKEN` for production | Protect `/admin` when the server is on the public internet |
@@ -67,8 +68,8 @@ Goal: smarter NPCs and clearer multiplayer social feel.
 |------|--------|
 | Per-NPC memory across sessions | Tied to persistence |
 | Safer AI prompts / rate limits | Already partially in place — expand |
-| In-game “AI on/off” indicator | No keys in the game client |
-| Chat UX | NPC whisper vs world chat clarity |
+| In-game “AI on/off” indicator | **Done** — HUD pill via public `/api/ai-status` (no keys in the client) |
+| Chat UX | **Done** — NPC vs world chat placeholder + tint when targeting an NPC |
 | Voice / streaming (later) | Out of scope until text AI is solid |
 
 ---

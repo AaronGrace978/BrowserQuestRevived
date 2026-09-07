@@ -23,7 +23,7 @@ Mozilla presents an HTML5 mini-MMORPG by Little Workshop http://www.littleworksh
         <link rel="icon" type="image/png" href="img/common/favicon.png">
         <meta property="og:title" content="BrowserQuest Revival">
         <meta property="og:type" content="website">
-        <meta property="og:url" content="http://browserquest.mozilla.org/">
+        <meta property="og:url" content="https://github.com/AaronGrace978/BrowserQuestRevived">
         <meta property="og:image" content="img/common/revival.png">
         <meta property="og:site_name" content="BrowserQuest Revival">
         <meta property="og:description" content="BrowserQuest Revival — dedicated to Mozilla. An HTML5 massively multiplayer adventure powered by WebSockets.">
@@ -224,7 +224,7 @@ Mozilla presents an HTML5 mini-MMORPG by Little Workshop http://www.littleworksh
 	                </h1>
 	                <ul>
 	                   <li><span class="icon"></span>Left click or tap to move, attack and pick up items.</li>
-	                   <li><span class="icon"></span>Press ENTER to chat.</li>
+	                   <li><span class="icon"></span>Press ENTER to chat. Target an NPC first to talk with them.</li>
 	                   <li><span class="icon"></span>Your character is automatically saved as you play.</li>
 	                </ul>
 	                    <p>- click anywhere to close -</p>
@@ -289,9 +289,11 @@ Mozilla presents an HTML5 mini-MMORPG by Little Workshop http://www.littleworksh
     			</div>
 				<div id="chatbox">
 				    <form action="none" method="get" accept-charset="utf-8">
-					    <input id="chatinput" class="gp" type="text" maxlength="60">
+					    <input id="chatinput" class="gp" type="text" maxlength="60" placeholder="Say something…" autocomplete="off">
 				    </form>
+                    <span id="ai-indicator">to NPC</span>
 				</div>
+                <div id="hud-ai-status" class="off" aria-live="polite">AI NPCs on</div>
                 <div id="population">
                     <div id="instance-population" class="">
                         <span>0</span> <span>players</span> in your instance
@@ -305,8 +307,8 @@ Mozilla presents an HTML5 mini-MMORPG by Little Workshop http://www.littleworksh
 		<footer>
 		    <div id="sharing" class="clickable">
 		      Share this on 
-              <a href="http://twitter.com/share?url=http%3A%2F%2Fbrowserquest.mozilla.org&amp;text=Mozilla%27s%20BrowserQuest%3A%20HTML5%20massively%20multiplayer%20adventure%20game%20%23demo%20%23websockets&amp;related=glecollinet:Creators%20of%20BrowserQuest%2Cwhatthefranck" class="twitter"></a>
-              <a href="http://www.facebook.com/share.php?u=http://browserquest.mozilla.org/" class="facebook"></a>
+              <a href="https://twitter.com/share?url=https%3A%2F%2Fgithub.com%2FAaronGrace978%2FBrowserQuestRevived&amp;text=BrowserQuest%20Revival%20%E2%80%94%20HTML5%20massively%20multiplayer%20adventure%20%23BrowserQuest%20%23HTML5&amp;related=glecollinet:Creators%20of%20BrowserQuest%2Cwhatthefranck" class="twitter"></a>
+              <a href="https://www.facebook.com/share.php?u=https://github.com/AaronGrace978/BrowserQuestRevived" class="facebook"></a>
 		    </div>
 		    <div id="credits-link" class="clickable">
 		      – <span id="toggle-credits">Credits</span>

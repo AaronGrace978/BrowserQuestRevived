@@ -91,9 +91,9 @@ footer, header, hgroup, menu, nav, section {
     html {-webkit-text-size-adjust: 100%}
 	html, body {height:100%;}
 	
-	body {padding:0;margin:0;background:#111;overflow:hidden;image-rendering:-moz-crisp-edges; image-rendering:-webkit-optimize-contrast;border-top:2px solid #707070;}
+	body {padding:0;margin:0;background:#111;overflow:hidden;image-rendering:-moz-crisp-edges;image-rendering:pixelated;image-rendering:crisp-edges;border-top:2px solid #707070;}
 	
-	canvas { position:absolute;image-rendering:optimizeSpeed;}
+	canvas { position:absolute;image-rendering:-moz-crisp-edges;image-rendering:pixelated;image-rendering:crisp-edges;}
 	#background { background:url('../img/common/loading.png') no-repeat center center, #000;}
 	.error #background { background:url('../img/common/loading-error.png') no-repeat center center, #000;}
 	
@@ -128,7 +128,7 @@ footer, header, hgroup, menu, nav, section {
     body.upscaled.game {background:#000;}
     .game #logo {display:none;-moz-animation:none;-webkit-animation:none;-o-animation:none;-ms-animation:none;animation:none;}
         
-    #logo, #logosparks, .left-ornament, .right-ornament, #character, #character div, .button, .button div, #respawn, #scroll, #instructions, .icon, #tilt, .parchment-left, .parchment-middle, .parchment-right, .avatar, .facebook, .twitter, .close, #note, .ribbon .top, .ribbon .bottom, #about .img, .ext-link {background:url('../img/1/spritesheet.png');image-rendering:-moz-crisp-edges; image-rendering:-webkit-optimize-contrast;}
+    #logo, #logosparks, .left-ornament, .right-ornament, #character, #character div, .button, .button div, #respawn, #scroll, #instructions, .icon, #tilt, .parchment-left, .parchment-middle, .parchment-right, .avatar, .facebook, .twitter, .close, #note, .ribbon .top, .ribbon .bottom, #about .img, .ext-link {background:url('../img/1/spritesheet.png');image-rendering:-moz-crisp-edges;image-rendering:pixelated;image-rendering:crisp-edges;}
     
     #moztab {height:49px;width:118px;position:fixed;top:0;right:15%;background:url('../img/1/spritesheet.png') no-repeat -229px -204px;display:block;}
 
@@ -147,8 +147,8 @@ footer, header, hgroup, menu, nav, section {
 
     #mask {height:100%;width:100%;position:fixed;top:0;left:0;background:rgba(20,20,20,1);opacity:1;z-index:20;-moz-transition:0.5s opacity linear;-webkit-transition:0.5s opacity linear;-o-transition:0.5s opacity linear;-ms-transition:0.5s opacity linear;transition:0.5s opacity linear;pointer-events:none;}
 
-    #bar-container {background:url('../img/1/barsheet.png');image-rendering:-moz-crisp-edges;position:relative;width:100%;z-index:10;}
-    #healthbar {background:url('../img/1/barsheet.png');image-rendering:-moz-crisp-edges;position:absolute;}
+    #bar-container {background:url('../img/1/barsheet.png');image-rendering:-moz-crisp-edges;image-rendering:pixelated;image-rendering:crisp-edges;position:relative;width:100%;z-index:10;}
+    #healthbar {background:url('../img/1/barsheet.png');image-rendering:-moz-crisp-edges;image-rendering:pixelated;image-rendering:crisp-edges;position:absolute;}
 	#hitpoints {background:#d83939;-moz-transition:.5s width ease;-webkit-transition:.5s width ease;-o-transition:.5s width ease;-ms-transition:.5s width ease;transition:.5s width ease;}
     #hitpoints.white {-moz-animation:flash 0.5s linear 1;-webkit-animation:flash 0.5s linear 1;-o-animation:flash 0.5s linear 1;-ms-animation:flash 0.5s linear 1;animation:flash 0.5s linear 1;}
 	#hitpoints.invincible {-moz-animation:invincible 0.3s steps(3, end) alternate infinite;-webkit-animation:invincible 0.3s steps(3, end) alternate infinite;-o-animation:invincible 0.3s steps(3, end) alternate infinite;-ms-animation:invincible 0.3s steps(3, end) alternate infinite;}
@@ -161,21 +161,30 @@ footer, header, hgroup, menu, nav, section {
     
     #playercount {font-family:'GraphicPixel';color:#e3e3e3;position:absolute;}
     #playercount:hover {cursor:pointer;color:#FCE045;}
-    #population {background:url('../img/1/barsheet.png');image-rendering:-moz-crisp-edges;position:absolute;font-family:'GraphicPixel';color:#fff;text-align:center;opacity:0;pointer-events:none;-moz-transition:0.2s opacity linear, 0.2s height ease;-webkit-transition:0.2s opacity linear, 0.2s height ease;-o-transition:0.2s opacity linear, 0.2s height ease;-ms-transition:0.2s opacity linear, 0.2s height ease;transition:0.2s opacity linear, 0.2s height ease;height:0;overflow:hidden;}
+    #population {background:url('../img/1/barsheet.png');image-rendering:-moz-crisp-edges;image-rendering:pixelated;image-rendering:crisp-edges;position:absolute;font-family:'GraphicPixel';color:#fff;text-align:center;opacity:0;pointer-events:none;-moz-transition:0.2s opacity linear, 0.2s height ease;-webkit-transition:0.2s opacity linear, 0.2s height ease;-o-transition:0.2s opacity linear, 0.2s height ease;-ms-transition:0.2s opacity linear, 0.2s height ease;transition:0.2s opacity linear, 0.2s height ease;height:0;overflow:hidden;}
     #population span:nth-child(1) {color:#FCE045;}
     #population.visible {opacity:1;pointer-events:auto;}
     
-    .barbutton {background:url('../img/1/barsheet.png');image-rendering:-moz-crispt-edges;position:absolute;}
+    .barbutton {background:url('../img/1/barsheet.png');image-rendering:-moz-crisp-edges;image-rendering:pixelated;image-rendering:crisp-edges;position:absolute;}
     
-    #chatbox {background:url('../img/1/barsheet.png');image-rendering:-moz-crisp-edges;position:absolute;left:50%;z-index:5;-moz-transition:0.2s bottom ease;-webkit-transition:0.2s bottom ease;-o-transition:0.2s bottom ease;-ms-transition:0.2s bottom ease;transition:0.2s bottom ease;}
+    #chatbox {background:url('../img/1/barsheet.png');image-rendering:-moz-crisp-edges;image-rendering:pixelated;image-rendering:crisp-edges;position:absolute;left:50%;z-index:5;-moz-transition:0.2s bottom ease;-webkit-transition:0.2s bottom ease;-o-transition:0.2s bottom ease;-ms-transition:0.2s bottom ease;transition:0.2s bottom ease;}
+    #chatbox.npc-chat {filter:saturate(1.35) brightness(1.08);}
+    #chatbox input::-webkit-input-placeholder {color:#bdb7a0;}
+    #chatbox input::-moz-placeholder {color:#bdb7a0;}
+    #chatbox input::placeholder {color:#bdb7a0;}
+    #chatbox.npc-chat input::-webkit-input-placeholder {color:#fce045;}
+    #chatbox.npc-chat input::-moz-placeholder {color:#fce045;}
+    #chatbox.npc-chat input::placeholder {color:#fce045;}
+    #ai-indicator {display:none;position:absolute;right:8px;top:50%;transform:translateY(-50%);font-family:'GraphicPixel',sans-serif;font-size:10px;color:#fcda5c;letter-spacing:0.5px;pointer-events:none;text-shadow:1px 1px 0 #1a1a1a;}
+    #chatbox.npc-chat #ai-indicator {display:block;}
     .bubble p {-moz-user-select:none;-webkit-user-select:none;}
     
     #instructions {position:absolute;top:50%;left:50%;z-index:1000;font-family:'GraphicPixel';pointer-events:none;opacity:0;-moz-transition:0.25s opacity linear;-webkit-transition:0.4s top ease, 0.4s opacity linear;-o-transition:0.4s top ease, 0.4s opacity linear;-ms-transition:0.4s top ease, 0.4s opacity linear;transition:0.4s top ease, 0.4s opacity linear;}
     #instructions.active, #achievements.active {opacity:1;pointer-events:auto;}
     
-    #weapon, #armor {image-rendering:-moz-crisp-edges;}
+    #weapon, #armor {image-rendering:-moz-crisp-edges;image-rendering:pixelated;image-rendering:crisp-edges;}
 
-    #achievements, #achievements li, .coin, #achievement-notification, #coinsparks, .achievement-sharing a, #previous, #next {background:url('../img/1/achievements.png');image-rendering:-moz-crisp-edges;}
+    #achievements, #achievements li, .coin, #achievement-notification, #coinsparks, .achievement-sharing a, #previous, #next {background:url('../img/1/achievements.png');image-rendering:-moz-crisp-edges;image-rendering:pixelated;image-rendering:crisp-edges;}
     #achievements {font-family:'GraphicPixel'; position:absolute;top:50%;left:50%;z-index:1000;opacity:0;pointer-events:none;-moz-transition:0.25s opacity linear;-webkit-transition:0.4s top ease, 0.4s opacity linear;-o-transition:0.4s top ease, 0.4s opacity linear;-ms-transition:0.4s top ease, 0.4s opacity linear;transition:0.4s top ease, 0.4s opacity linear;}
     #achievements li {clear:both;position:relative;}
     #achievements li .coin, #achievements li .achievement-name {float:left;}
@@ -201,7 +210,7 @@ footer, header, hgroup, menu, nav, section {
 
     #credits, #loadcharacter, #confirmation, #death, #error, #about {position:absolute;left:50%;text-align:center;font-family:'GraphicPixel', sans-serif;z-index:1000;}
     
-    #playerimage {image-rendering: -moz-crisp-edges; image-rendering: -webkit-optimize-contrast;}
+    #playerimage {image-rendering:-moz-crisp-edges;image-rendering:pixelated;image-rendering:crisp-edges;}
     
     #parchment p {font-family:'GraphicPixel';}
     
@@ -211,11 +220,14 @@ footer, header, hgroup, menu, nav, section {
     #authors div a {display:block;color:#fff;text-decoration:none;}
     #authors div a:hover, #credits h1 a:hover {color:#93C1FF;}
     #seb {clear:both;}
-    #revival-dedication {clear:both;margin:18px auto 8px;max-width:90%;font-size:0.55em;line-height:1.45;color:#fcda5c;}
-    #revival-dedication .dedication-line {margin:4px 0;}
-    #revival-dedication .dedication-line.muted {color:#cbb896;font-size:0.92em;}
+    #revival-dedication {clear:both;margin:6px auto 0;max-width:88%;font-size:0.48em;line-height:1.35;color:#fcda5c;}
+    #revival-dedication .dedication-line {margin:2px 0;}
+    #revival-dedication .dedication-line.muted {color:#cbb896;font-size:0.9em;}
     #revival-dedication a {color:#93C1FF;text-decoration:none;}
     #revival-dedication a:hover {color:#fff;}
+    #hud-ai-status {display:none;position:absolute;z-index:12;font-family:'GraphicPixel',sans-serif;color:#8fcea0;background:rgba(0,0,0,0.45);border:1px solid rgba(143,206,160,0.35);padding:2px 8px;pointer-events:none;letter-spacing:0.4px;}
+    #hud-ai-status.on {display:block;}
+    #hud-ai-status.off {display:none;}
 
     #portrait {display:none;}
 
@@ -232,7 +244,6 @@ footer, header, hgroup, menu, nav, section {
     #sharing .facebook:hover {background-position:-822px -224px;}
     #sharing .twitter {height:22px;width:32px;background-position:-770px -224px;margin:0 12px 0 0;}
     #sharing .twitter:hover {background-position:-770px -224px;}
-    #sharing .gplus {height:22px;width:22px;background:url('../img/common/gplus.png');margin:0 12px 0 0px;}
     #credits-link span {display:inline-block;margin-left:12px;}
     #credits-link span:hover {color:#fcda5c;cursor:pointer;}
     #settings-link {display:inline-block;}
@@ -540,7 +551,9 @@ footer, header, hgroup, menu, nav, section {
         
         #chatbox {height:48px;width:1182px;background-size:1440px;background-position:0 -96px;margin-left:-591px;bottom:18px;}
         #chatbox.active {bottom:66px;}
-		#chatbox input {font-size:20px;color:#eee;background:none;width:90%;border:0;margin-left:2%;padding:16px 0;}
+		#chatbox input {font-size:20px;color:#eee;background:none;width:86%;border:0;margin-left:2%;padding:16px 0;}
+        #ai-indicator {font-size:14px;right:14px;}
+        #hud-ai-status {top:18px;left:18px;font-size:12px;}
 		
 		/*Credits*/
         #credits, #death, #about {width:1266px;height:546px;margin-left:-633px;margin-top:-273px;font-size:30px;}
@@ -560,11 +573,12 @@ footer, header, hgroup, menu, nav, section {
         .avatar {height:75px;width:39px;}
         #guillaume .avatar {float:right;background-position:-1062px -303px;margin-left:60px;}
         #franck .avatar {float:left;background-position:-1101px -303px;margin-right:60px;}
-        #seb {margin:270px auto 0 auto;width:54%;color:#373737;font-size:25px;}
+        #seb {margin:168px auto 0 auto;width:54%;color:#373737;font-size:20px;}
         #seb a {color:#373737;text-decoration:none;}
         #seb a:hover {color:#397cd8;}
         #note {float:left;background-position:-1203px -336px;height:33px;width:30px;}
-        #close-credits {margin:45px auto 0 auto;text-align:center;clear:both;font-size:20px;color:#373737;}
+        #revival-dedication {margin-top:10px;font-size:14px;}
+        #close-credits {margin:12px auto 0 auto;text-align:center;clear:both;font-size:18px;color:#373737;}
         #sharing {width:240px;}
         
         /*About*/
@@ -700,7 +714,8 @@ footer, header, hgroup, menu, nav, section {
 
 		#chatbox {height:32px;width:788px;background-size:960px;background-position:0 -64px;margin-left:-394px;bottom:12px;}
 		#chatbox.active {bottom:44px;}
-		#chatbox input {font-size:20px;color:#eee;background:none;width:90%;border:0;margin-left:2%;padding:7px 0;}
+		#chatbox input {font-size:20px;color:#eee;background:none;width:86%;border:0;margin-left:2%;padding:7px 0;}
+        #ai-indicator {font-size:11px;right:10px;}
 		
 		/*Credits*/
         #credits, #death, #about {width:844px;height:364px;margin-left:-422px;margin-top:-182px;font-size:20px;}
@@ -720,11 +735,12 @@ footer, header, hgroup, menu, nav, section {
         .avatar {height:50px;width:26px;}
         #guillaume .avatar {float:right;background-position:-708px -202px;margin-left:40px;}
         #franck .avatar {float:left;background-position:-734px -202px;margin-right:40px;}
-        #seb {margin:180px auto 0 auto;width:52%;color:#373737;font-size:16px;}
+        #seb {margin:108px auto 0 auto;width:52%;color:#373737;font-size:14px;}
         #seb a {color:#373737;text-decoration:none;}
         #seb a:hover {color:#397cd8;}
         #note {float:left;background-position:-802px -224px;height:22px;width:20px;}
-        #close-credits {margin:20px auto 0 auto;text-align:center;clear:both;font-size:14px;}
+        #revival-dedication {margin-top:6px;font-size:11px;}
+        #close-credits {margin:8px auto 0 auto;text-align:center;clear:both;font-size:12px;}
         #sharing {width:202px;}
         
         /*About*/
@@ -748,6 +764,7 @@ footer, header, hgroup, menu, nav, section {
         
 	    footer {font-size:16px;}
         #resize-check {height:2px;}
+        #hud-ai-status {top:14px;left:14px;font-size:11px;}
 	}
 	
 	@media screen and (max-height: 870px) {
@@ -880,12 +897,14 @@ footer, header, hgroup, menu, nav, section {
         .avatar {height:50px;width:26px;}
         #guillaume .avatar {float:right;background-position:-708px -202px;margin-left:40px;}
         #franck .avatar {float:left;background-position:-734px -202px;margin-right:40px;}
-        #seb {margin:180px auto 0 auto;width:52%;color:#373737;font-size:16px;}
+        #seb {margin:108px auto 0 auto;width:52%;color:#373737;font-size:14px;}
         #seb a {color:#373737;text-decoration:none;}
         #seb a:hover {color:#397cd8;}
         #note {float:left;background-position:-802px -224px;height:22px;width:20px;}
-        #close-credits {margin:20px auto 0 auto;text-align:center;clear:both;font-size:14px;}
+        #revival-dedication {margin-top:6px;font-size:11px;}
+        #close-credits {margin:8px auto 0 auto;text-align:center;clear:both;font-size:12px;}
         #sharing {width:202px;}
+        #hud-ai-status {top:10px;left:10px;font-size:10px;}
         
         /*About*/
         #about h1 span.title {max-width:400px;display:inline-block;line-height:24px;margin-top:-90px;position:relative;}
@@ -1039,12 +1058,15 @@ footer, header, hgroup, menu, nav, section {
         .avatar {height:25px;width:13px;}
         #guillaume .avatar {float:right;background-position:-354px -101px;margin-left:20px;}
         #franck .avatar {float:left;background-position:-367px -101px;margin-right:20px;}
-        #seb {margin:90px auto 0 auto;width:64%;color:#373737;font-size:10px;}
+        #seb {margin:48px auto 0 auto;width:70%;color:#373737;font-size:8px;line-height:1.2;}
         #seb a {color:#373737;text-decoration:none;}
         #seb a:hover {color:#397cd8;}
         #note {float:left;background-position:-401px -112px;height:11px;width:10px;}
-        #close-credits {margin:12px auto 0 auto;text-align:center;clear:both;font-size:10px;}
+        #revival-dedication {margin-top:4px;font-size:7px;line-height:1.25;}
+        #revival-dedication .dedication-line.muted {display:none;}
+        #close-credits {margin:4px auto 0 auto;text-align:center;clear:both;font-size:8px;}
         #sharing {width:202px;}
+        #hud-ai-status {top:6px;left:6px;font-size:8px;padding:1px 5px;}
         
         /*About*/
         #about h1 span.title {max-width:400px;display:inline-block;line-height:24px;margin-top:-30px;position:relative;margin-bottom:-10px;}
@@ -1084,14 +1106,15 @@ footer, header, hgroup, menu, nav, section {
         
 		.ribbon {display:none;}
         
-        canvas {image-rendering:optimizeSpeed;}
+        canvas {image-rendering:-moz-crisp-edges;image-rendering:pixelated;image-rendering:crisp-edges;}
         #moztab {display:none;}
         body.intro {background:-moz-radial-gradient(rgba(0,0,0,0) 40%,rgba(0,0,0,1) 125%), url('../img/1/wood.png') repeat, #000; background-size:auto, 128px;}
         body.intro {background:-webkit-gradient(radial, center center, 120, center center, 400, from(rgba(0,0,0,0)), to(rgba(0,0,0,1))), url('../img/1/wood.png') repeat, #000; background-size:auto, 128px;}
         body {background:#000;}
         #logosparks {-moz-animation:none;-webkit-animation:none;-o-animation:none;-ms-animation:none;display:none;}
-		#container {height:258px;width:480px;position:relative;left:50%;top:50%;margin:-128px auto 0 -240px;}
+		#container {height:258px;width:480px;position:relative;left:50%;top:50%;margin:-129px 0 0 -240px;transform:scale(min(1.65, calc(100vw / 480), calc((100vh - 36px) / 258)));transform-origin:center center;}
 		#canvasborder {background:none;padding:0;}
+        #hud-ai-status {top:4px;left:4px;font-size:9px;z-index:30;}
 		
 		#parchment, #logosparks, .left-ornament, .right-ornament, #character, #character div, .button, .button div, #respawn, #scroll, #instructions, .icon {background-size:422px auto;}
         #parchment {background:none;}
@@ -1153,7 +1176,9 @@ footer, header, hgroup, menu, nav, section {
         #weapon {left:208px;top:2px;}
         #armor {left:242px;top:2px;}
 
-        #notifications {display:none;}
+        #notifications {display:block;width:120px;margin-left:-60px;font-size:10px;color:#eee;top:8px;height:16px;left:50%;z-index:25;}
+        #notifications div.top {top:-16px;}
+        #notifications span {line-height:16px;height:16px;font-size:10px;}
 
         #playercount {font-size:20px;left:270px;top:10px;width:114px;text-align:center;}
         #playercount span {display:none;}
@@ -1183,7 +1208,7 @@ footer, header, hgroup, menu, nav, section {
 		.parchment-middle {width:100%;left:0px;margin-left:0px;height:auto;position:relative;}
 		#toggle-credits, #credits {display:none;}
 		
-		.game.death #parchment {background:url('../img/spritesheet.png') 0 -294px;height:182px;width:422px;position:absolute;top:50%;left:50%;margin-top:-91px;margin-left:-211px;}
+		.game.death #parchment {background:url('../img/1/spritesheet.png') 0 -294px;height:182px;width:422px;position:absolute;top:50%;left:50%;margin-top:-91px;margin-left:-211px;}
         .game.death .parchment-middle {width:100%;position:relative;top:0;left:0;margin-left:0;margin-top:0;}
         .game.death #death {position:relative;top:0;left:0;margin-top:0;margin-left:0;width:100%;}
         .game.death #death p {padding-top:30px;color:#373737;font-size:20px;margin-top:0;width:80%;margin:0 auto;}
@@ -1195,7 +1220,8 @@ footer, header, hgroup, menu, nav, section {
         #respawn { background-position: -204px -1398px; background-size: 844px auto; width: 204px; height: 54px;}
 		#respawn:active {background-position:-408px -1398px;}
 
-        footer {display:none;}
+        footer {display:block;position:fixed;bottom:6px;left:0;width:100%;font-size:11px;z-index:40;opacity:0.85;}
+        footer #sharing {display:none;}
         #bubbles {overflow:hidden;}
 	}
 

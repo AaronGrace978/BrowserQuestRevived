@@ -244,6 +244,12 @@ function createAdminHandler(ctx) {
         var isApi = pathname.indexOf('/api/admin/') === 0;
         var allowed = isAdminRequest(req, ctx.config);
 
+        // Public, secrets-free status for the in-game HUD indicator.
+        if (pathname === '/api/ai-status' && req.method === 'GET') {
+            sendJson(response, 200, { ai_enabled: !!ctx.config.ai_enabled });
+            return true;
+        }
+
         if (pathname === '/admin' || pathname === '/admin/' || pathname.indexOf('/admin/') === 0) {
             // Static admin UI is safe to serve; APIs enforce auth.
             // Remote users without a token can still open the page and enter one.

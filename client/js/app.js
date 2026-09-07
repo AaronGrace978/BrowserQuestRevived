@@ -87,15 +87,19 @@ define(['jquery', 'storage'], function($, Storage) {
             
             if(username && !this.game.started) {
                 var optionsSet = false,
-                    config = this.config;
+                    config = this.config,
+                    host,
+                    port;
 
                 //>>includeStart("devHost", pragmas.devHost);
                 if(config.local) {
                     log.debug("Starting game with local dev config.");
-                    this.game.setServerOptions(config.local.host, config.local.port, username);
+                    host = config.local.host;
+                    port = config.local.port;
                 } else {
                     log.debug("Starting game with default dev config.");
-                    this.game.setServerOptions(config.dev.host, config.dev.port, username);
+                    host = config.dev.host;
+                    port = config.dev.port;
                 }
                 optionsSet = true;
                 //>>includeEnd("devHost");
@@ -103,9 +107,24 @@ define(['jquery', 'storage'], function($, Storage) {
                 //>>includeStart("prodHost", pragmas.prodHost);
                 if(!optionsSet) {
                     log.debug("Starting game with build config.");
-                    this.game.setServerOptions(config.build.host, config.build.port, username);
+                    host = config.build.host;
+                    port = config.build.port;
                 }
                 //>>includeEnd("prodHost");
+
+                // Same-origin WebSocket host so LAN / hosted play works without localhost traps.
+                if(window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+                    if(window.location.hostname) {
+                        host = window.location.hostname;
+                        port = window.location.port
+                            ? parseInt(window.location.port, 10)
+                            : (window.location.protocol === 'https:' ? 443 : 80);
+                        log.debug("Using same-origin server "+host+":"+port);
+                    }
+                }
+
+                this.game.setServerOptions(host, port, username);
+                this.refreshAiStatus();
 
                 this.center();
                 this.game.run(function() {
@@ -117,15 +136,49 @@ define(['jquery', 'storage'], function($, Storage) {
             }
         },
 
+        refreshAiStatus: function() {
+            var $status = $('#hud-ai-status');
+            if(!$status.length) {
+                return;
+            }
+
+            fetch('/api/ai-status')
+                .then(function(res) { return res.ok ? res.json() : null; })
+                .then(function(data) {
+                    if(data && data.ai_enabled) {
+                        $status.removeClass('off').addClass('on').text('AI NPCs on');
+                    } else {
+                        $status.removeClass('on').addClass('off');
+                    }
+                })
+                .catch(function() {
+                    $status.removeClass('on').addClass('off');
+                });
+        },
+
         setMouseCoordinates: function(event) {
-            var gamePos = $('#container').offset(),
-                scale = this.game.renderer.getScaleFactor(),
+            var mouse = this.game.mouse,
                 width = this.game.renderer.getWidth(),
                 height = this.game.renderer.getHeight(),
-                mouse = this.game.mouse;
+                canvas = document.getElementById('foreground'),
+                rect = canvas ? canvas.getBoundingClientRect() : null,
+                clientX = event.clientX,
+                clientY = event.clientY;
 
-            mouse.x = event.pageX - gamePos.left - (this.isMobile ? 0 : 5 * scale);
-        	mouse.y = event.pageY - gamePos.top - (this.isMobile ? 0 : 7 * scale);
+            if(clientX === undefined && event.pageX !== undefined) {
+                clientX = event.pageX;
+                clientY = event.pageY;
+            }
+
+            if(rect && rect.width > 0 && rect.height > 0) {
+                mouse.x = ((clientX - rect.left) / rect.width) * width;
+                mouse.y = ((clientY - rect.top) / rect.height) * height;
+            } else {
+                var gamePos = $('#container').offset(),
+                    scale = this.game.renderer.getScaleFactor();
+                mouse.x = clientX - gamePos.left - (this.isMobile ? 0 : 5 * scale);
+                mouse.y = clientY - gamePos.top - (this.isMobile ? 0 : 7 * scale);
+            }
 
         	if(mouse.x <= 0) {
         	    mouse.x = 0;
@@ -185,6 +238,7 @@ define(['jquery', 'storage'], function($, Storage) {
 
         showChat: function() {
             if(this.game.started) {
+                this.updateChatMode();
                 $('#chatbox').addClass('active');
                 $('#chatinput').focus();
                 $('#chatbutton').addClass('active');
@@ -193,9 +247,31 @@ define(['jquery', 'storage'], function($, Storage) {
 
         hideChat: function() {
             if(this.game.started) {
-                $('#chatbox').removeClass('active');
+                $('#chatbox').removeClass('active').removeClass('npc-chat');
+                $('#chatinput').attr('placeholder', 'Say something…');
                 $('#chatinput').blur();
                 $('#chatbutton').removeClass('active');
+            }
+        },
+
+        updateChatMode: function() {
+            var target = this.game && this.game.player && this.game.player.target,
+                talkingToNpc = !!(target && (
+                    (typeof Types !== 'undefined' && Types.isNpc(target.kind)) ||
+                    typeof target.talk === 'function'
+                )),
+                $chatbox = $('#chatbox'),
+                $input = $('#chatinput'),
+                name;
+
+            if(talkingToNpc) {
+                name = (target.name) || (typeof Types !== 'undefined' && Types.getKindAsString(target.kind)) || 'NPC';
+                $chatbox.addClass('npc-chat');
+                $input.attr('placeholder', 'Talk to ' + name + '…');
+                $('#ai-indicator').text('to ' + name);
+            } else {
+                $chatbox.removeClass('npc-chat');
+                $input.attr('placeholder', 'Say something…');
             }
         },
 
@@ -316,7 +392,7 @@ define(['jquery', 'storage'], function($, Storage) {
                 if(!achievement.hidden) {
                     self.setAchievementData($a, achievement.name, achievement.desc);
                 }
-                $a.find('.twitter').attr('href', 'http://twitter.com/share?url=http%3A%2F%2Fbrowserquest.mozilla.org&text=I%20unlocked%20the%20%27'+ achievement.name +'%27%20achievement%20on%20Mozilla%27s%20%23BrowserQuest%21&related=glecollinet:Creators%20of%20BrowserQuest%2Cwhatthefranck');
+                $a.find('.twitter').attr('href', 'https://twitter.com/share?url=https%3A%2F%2Fgithub.com%2FAaronGrace978%2FBrowserQuestRevived&text=I%20unlocked%20the%20%27'+ achievement.name +'%27%20achievement%20on%20BrowserQuest%20Revival%21&related=glecollinet:Creators%20of%20BrowserQuest%2Cwhatthefranck');
                 $a.show();
                 $a.find('a').click(function() {
                      var url = $(this).attr('href');
