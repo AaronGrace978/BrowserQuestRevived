@@ -90,7 +90,12 @@ function applyAiSettings(config, updates, secrets) {
         config.ai_provider = local.ai_provider;
     }
     if (updates.ai_model !== undefined) {
-        local.ai_model = String(updates.ai_model);
+        var modelId = String(updates.ai_model).trim();
+        // Guard against browser autofill writing an API key into the model field.
+        if (/^[a-f0-9]{20,}\.[A-Za-z0-9_-]{16,}$/i.test(modelId) || modelId.length > 80) {
+            throw new Error('ai_model looks like an API key — use the key fields instead');
+        }
+        local.ai_model = modelId;
         config.ai_model = local.ai_model;
     }
     if (updates.ai_timeout_ms !== undefined) {

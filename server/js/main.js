@@ -1,8 +1,17 @@
+// Shared client code (gametypes.js) expects underscore as `_`.
+// Keep native Map intact — overwriting it breaks fetch()/undici (AI NPCs).
+var NativeMap = global.Map;
+global._ = require('underscore');
+
 var fs = require('fs'),
     Metrics = require('./metrics'),
     AiRouter = require('./ai/router'),
     aiSettings = require('./ai-settings'),
     admin = require('./admin');
+
+if (global.Map !== NativeMap) {
+    global.Map = NativeMap;
+}
 
 function applyAiEnv(config) {
     if (process.env.AI_ENABLED !== undefined) {
@@ -48,6 +57,11 @@ function main(config) {
                 });
             }
         }, 1000);
+
+    // worldserver/map historically leaked constructors onto global; undici needs native Map.
+    if (global.Map !== NativeMap) {
+        global.Map = NativeMap;
+    }
     
     switch(config.debug_level) {
         case "error":
@@ -138,7 +152,7 @@ function main(config) {
     }
     
     process.on('uncaughtException', function (e) {
-        log.error('uncaughtException: ' + e);
+        log.error('uncaughtException: ' + e + (e && e.stack ? '\n' + e.stack : ''));
     });
 }
 

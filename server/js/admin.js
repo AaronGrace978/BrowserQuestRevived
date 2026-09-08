@@ -13,53 +13,104 @@ var MIME_TYPES = {
 };
 
 var ANTHROPIC_MODEL_SUGGESTIONS = [
+    // Current frontier (curated order = dropdown order)
+    'claude-opus-5',
+    'claude-sonnet-5',
+    'claude-fable-5',
+    'claude-haiku-4-5',
+    // Recent / still useful
+    'claude-opus-4-8',
+    'claude-opus-4-7',
+    'claude-opus-4-6',
+    'claude-sonnet-4-6',
     'claude-sonnet-4-5',
     'claude-opus-4-5',
-    'claude-haiku-4-5',
-    'claude-3-5-sonnet-latest',
-    'claude-3-5-haiku-latest',
-    'claude-3-opus-latest'
+    'claude-haiku-4-5-20251001'
 ];
 
 var OPENAI_MODEL_SUGGESTIONS = [
-    'gpt-4o-mini',
-    'gpt-4o',
-    'gpt-4.1-mini',
+    // Current frontier
+    'gpt-5.5',
+    'gpt-5.5-pro',
+    'gpt-5.4',
+    'gpt-5.4-pro',
+    'gpt-5.4-mini',
+    'gpt-5.4-nano',
+    'gpt-5.3-chat-latest',
+    'gpt-5.2',
+    'gpt-5.2-pro',
+    'gpt-5.1',
+    'gpt-5.1-mini',
+    'gpt-5',
+    'gpt-5-mini',
+    'gpt-5-nano',
+    // Strong non-reasoning / legacy favorites
     'gpt-4.1',
+    'gpt-4.1-mini',
     'gpt-4.1-nano',
+    'gpt-4o',
+    'gpt-4o-mini',
     'o4-mini',
+    'o3',
     'o3-mini',
     'chatgpt-4o-latest'
 ];
 
+// Local Ollama installs (no :cloud suffix)
 var OLLAMA_MODEL_SUGGESTIONS = [
+    'glm-5.3',
+    'glm-5.3-flash',
+    'gemma4',
+    'qwen3.5',
     'llama3.2',
     'llama3.1',
-    'llama3',
     'mistral',
     'mixtral',
-    'qwen2.5',
-    'gemma2',
-    'phi3',
-    'deepseek-r1'
+    'phi4',
+    'deepseek-r1',
+    'gpt-oss'
 ];
 
-function uniqueSorted(list) {
+// Ollama Cloud via https://ollama.com — store/display with :cloud for clarity;
+// the provider strips :cloud when calling ollama.com directly.
+// Prefer faster / shorter-thinking models near the top for NPC dialogue.
+var OLLAMA_CLOUD_MODEL_SUGGESTIONS = [
+    'glm-5.3-flash:cloud',
+    'gemma4:cloud',
+    'minimax-m2.7:cloud',
+    'glm-5.1:cloud',
+    'glm-5.3:cloud',
+    'gpt-oss:20b-cloud',
+    'qwen3.5:cloud',
+    'deepseek-v4-flash:cloud',
+    'kimi-k2.6:cloud',
+    'minimax-m3:cloud',
+    'gpt-oss:120b-cloud'
+];
+
+function mergeCatalog(live, curated, message) {
     var seen = {};
     var out = [];
-    (list || []).forEach(function(id) {
+
+    // Keep curated order first so frontiers stay at the top of the dropdown.
+    (curated || []).forEach(function(id) {
         if (!id || seen[id]) {
             return;
         }
         seen[id] = true;
         out.push(id);
     });
-    return out.sort();
-}
 
-function mergeCatalog(live, curated, message) {
+    (live || []).slice().sort().forEach(function(id) {
+        if (!id || seen[id]) {
+            return;
+        }
+        seen[id] = true;
+        out.push(id);
+    });
+
     return {
-        models: uniqueSorted([].concat(curated || [], live || [])),
+        models: out,
         message: message || ''
     };
 }
@@ -174,22 +225,30 @@ function listOpenAiModels(apiKey) {
             var models = (body.data || [])
                 .map(function(m) { return m.id; })
                 .filter(function(id) {
-                    return /gpt|o1|o3|o4|chatgpt/i.test(id);
+                    return /^(gpt-|o[0-9]|chatgpt-)/i.test(id);
                 });
-            return mergeCatalog(models, OPENAI_MODEL_SUGGESTIONS, 'Live OpenAI models + common favorites');
+            return mergeCatalog(models, OPENAI_MODEL_SUGGESTIONS, 'Live OpenAI models + frontier favorites');
         });
     }).catch(function(err) {
         return mergeCatalog([], OPENAI_MODEL_SUGGESTIONS, 'Using common OpenAI models (' + String(err.message || err) + ')');
     });
 }
 
-function listOllamaModels(baseUrl, apiKey, curated) {
+function listOllamaModels(baseUrl, apiKey, curated, timeoutMs) {
     var root = (baseUrl || 'http://127.0.0.1:11434').replace(/\/$/, '');
     var headers = {};
+    var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    var timer = null;
     if (apiKey) {
         headers.Authorization = 'Bearer ' + apiKey;
     }
-    return fetch(root + '/api/tags', { headers: headers }).then(function(res) {
+    if (controller && timeoutMs) {
+        timer = setTimeout(function() { controller.abort(); }, timeoutMs);
+    }
+    return fetch(root + '/api/tags', {
+        headers: headers,
+        signal: controller ? controller.signal : undefined
+    }).then(function(res) {
         return res.json().then(function(body) {
             if (!res.ok) {
                 throw new Error((body && body.error) || res.statusText);
@@ -201,6 +260,11 @@ function listOllamaModels(baseUrl, apiKey, curated) {
         });
     }).catch(function(err) {
         return mergeCatalog([], curated, 'Using common Ollama model ids (' + String(err.message || err) + ')');
+    }).then(function(result) {
+        if (timer) {
+            clearTimeout(timer);
+        }
+        return result;
     });
 }
 
@@ -216,17 +280,16 @@ function listModels(config) {
         return Promise.resolve(mergeCatalog([], ANTHROPIC_MODEL_SUGGESTIONS, msg));
     }
     if (provider === 'ollama-cloud') {
-        return listOllamaModels(
-            config.ollama_cloud_base_url || 'https://ollama.com',
-            config.ollama_api_key || process.env.OLLAMA_API_KEY,
-            OLLAMA_MODEL_SUGGESTIONS
-        );
+        // ollama.com /api/tags is not a reliable public catalog — ship curated cloud tags.
+        return Promise.resolve(mergeCatalog([], OLLAMA_CLOUD_MODEL_SUGGESTIONS,
+            'Ollama Cloud frontiers (glm-5.3, deepseek-v4, kimi, gemma4, …)'));
     }
     if (provider === 'ollama') {
         return listOllamaModels(
             config.ollama_base_url || 'http://127.0.0.1:11434',
             config.ollama_api_key || process.env.OLLAMA_API_KEY,
-            OLLAMA_MODEL_SUGGESTIONS
+            OLLAMA_MODEL_SUGGESTIONS,
+            2500
         );
     }
     return Promise.resolve({ models: [], message: 'Unknown provider' });

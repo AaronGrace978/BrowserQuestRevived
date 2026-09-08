@@ -1648,6 +1648,7 @@ function(InfoManager, BubbleManager, Renderer, Map, Animation, Sprite, AnimatedT
                 this.pendingNpcTalkTimer = null;
             }
             this.pendingNpcTalkNpcId = null;
+            this.pendingNpcTalkNpc = null;
         },
 
         /**
@@ -1667,12 +1668,13 @@ function(InfoManager, BubbleManager, Renderer, Map, Animation, Sprite, AnimatedT
 
             this.clearPendingNpcTalk();
             this.pendingNpcTalkNpcId = npc.id;
+            this.pendingNpcTalkNpc = npc;
             this.pendingNpcTalkTimer = setTimeout(function() {
-                if(self.pendingNpcTalkNpcId === npc.id) {
+                if(self.pendingNpcTalkNpcId == npc.id) {
                     self.clearPendingNpcTalk();
                     self.makeNpcTalkClassic(npc);
                 }
-            }, 8000);
+            }, 3500);
 
             if(this.client && this.client.connection) {
                 this.client.sendNpcTalk(npc.id);
@@ -1683,9 +1685,9 @@ function(InfoManager, BubbleManager, Renderer, Map, Animation, Sprite, AnimatedT
         },
 
         onNpcTalkReplyFromServer: function(npcId, text) {
-            var npc = this.getEntityById(npcId);
+            var npc = this.getEntityById(npcId) || this.pendingNpcTalkNpc;
 
-            if(this.pendingNpcTalkNpcId === npcId) {
+            if(this.pendingNpcTalkNpcId == npcId) {
                 this.clearPendingNpcTalk();
             }
 

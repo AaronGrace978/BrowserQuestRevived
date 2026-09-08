@@ -19,6 +19,27 @@ AiRouter.prototype.isEnabled = function() {
     return !!this.config.ai_enabled;
 };
 
+AiRouter.prototype.getConfigError = function() {
+    if (!this.isEnabled()) {
+        return 'AI is disabled';
+    }
+    var provider = this._providerName();
+    var model = this._model();
+    if (!model) {
+        return 'AI_MODEL is not set';
+    }
+    if (provider === 'openai' && !(process.env.OPENAI_API_KEY || this.config.openai_api_key)) {
+        return 'OPENAI_API_KEY is not set';
+    }
+    if (provider === 'anthropic' && !(process.env.ANTHROPIC_API_KEY || this.config.anthropic_api_key)) {
+        return 'ANTHROPIC_API_KEY is not set';
+    }
+    if (provider === 'ollama-cloud' && !(process.env.OLLAMA_API_KEY || this.config.ollama_api_key)) {
+        return 'OLLAMA_API_KEY is not set for Ollama Cloud';
+    }
+    return null;
+};
+
 AiRouter.prototype._providerName = function() {
     return (this.config.ai_provider || process.env.AI_PROVIDER || 'openai').toLowerCase();
 };
@@ -60,16 +81,13 @@ AiRouter.prototype.buildMessages = function(kindName, history, userText) {
 
 AiRouter.prototype.generate = function(kindName, history, userText) {
     var self = this;
-    if (!this.isEnabled()) {
-        return Promise.reject(new Error('AI is disabled'));
+    var configError = this.getConfigError();
+    if (configError) {
+        return Promise.reject(new Error(configError));
     }
 
     var provider = this._providerName();
     var model = this._model();
-    if (!model) {
-        return Promise.reject(new Error('AI_MODEL is not set'));
-    }
-
     var messages = this.buildMessages(kindName, history, userText);
     var timeoutMs = this.config.ai_timeout_ms || 12000;
     var promise;

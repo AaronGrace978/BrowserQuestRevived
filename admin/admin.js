@@ -153,9 +153,9 @@
 
   $('ai_model').addEventListener('change', function () {
     currentModel = $('ai_model').value;
-    if ($('ai_model_custom').value.trim() === '') {
-      // keep custom empty so dropdown wins
-    }
+    // Dropdown is primary — clear override so password managers / old values
+    // cannot silently replace the selected model.
+    $('ai_model_custom').value = '';
   });
 
   $('ai-form').addEventListener('submit', function (event) {
@@ -168,6 +168,12 @@
     if (!model) {
       statusEl.className = 'status err';
       statusEl.textContent = 'Pick a model from the dropdown or enter a custom model id.';
+      return;
+    }
+    // Autofill sometimes dumps API keys into the custom model field — reject those.
+    if (/^[a-f0-9]{20,}\.[A-Za-z0-9_-]{16,}$/i.test(model) || model.length > 80) {
+      statusEl.className = 'status err';
+      statusEl.textContent = 'That looks like an API key, not a model id. Put keys in the key fields; pick e.g. glm-5.3:cloud for the model.';
       return;
     }
 

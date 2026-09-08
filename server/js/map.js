@@ -1,12 +1,13 @@
 
-var cls = require('./lib/class')
+var cls = require('./lib/class'),
     path = require('path'),
     fs = require('fs'),
     _ = require('underscore'),
     Utils = require('./utils'),
     Checkpoint = require('./checkpoint');
 
-module.exports = Map = cls.Class.extend({    
+// Do NOT assign to global Map — that shadows the native ES6 Map and breaks fetch()/undici (AI NPCs).
+var Map = cls.Class.extend({
     init: function(filepath) {
     	var self = this;
     
@@ -212,6 +213,8 @@ module.exports = Map = cls.Class.extend({
         return area.getRandomPosition();
     }
 });
+
+module.exports = Map;
 
 var pos = function(x, y) {
     return { x: x, y: y };

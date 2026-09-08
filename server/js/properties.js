@@ -157,10 +157,15 @@ Properties.getArmorLevel = function(kind) {
         if(Types.isMob(kind)) {
             return Properties[Types.getKindAsString(kind)].armor;
         } else {
-            return Types.getArmorRank(kind) + 1;
+            var rank = Types.getArmorRank(kind);
+            if(rank < 0) {
+                throw new Error('unknown armor');
+            }
+            return rank + 1;
         }
     } catch(e) {
         log.error("No level found for armor: "+Types.getKindAsString(kind));
+        return 1;
     }
 };
 
@@ -169,10 +174,15 @@ Properties.getWeaponLevel = function(kind) {
         if(Types.isMob(kind)) {
             return Properties[Types.getKindAsString(kind)].weapon;
         } else {
-            return Types.getWeaponRank(kind) + 1;
+            var rank = Types.getWeaponRank(kind);
+            if(rank < 0) {
+                throw new Error('unknown weapon');
+            }
+            return rank + 1;
         }
     } catch(e) {
         log.error("No level found for weapon: "+Types.getKindAsString(kind));
+        return 1;
     }
 };
 

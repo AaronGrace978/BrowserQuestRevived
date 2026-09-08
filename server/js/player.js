@@ -308,6 +308,13 @@ module.exports = Player = Character.extend({
             return;
         }
 
+        var configError = this.aiRouter.getConfigError && this.aiRouter.getConfigError();
+        if(configError) {
+            log.error("NPC AI unavailable: " + configError);
+            this.sendNpcTalkReply(npcId, "");
+            return;
+        }
+
         kindName = Types.getKindAsString(npc.kind);
         historyKey = kindName;
         if(!this.npcChatHistory[historyKey]) {

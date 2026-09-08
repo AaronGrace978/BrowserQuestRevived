@@ -12,9 +12,11 @@ Repo: [AaronGrace978/BrowserQuestRevived](https://github.com/AaronGrace978/Brows
 - Modern Node server + one-command local play
 - AI NPCs (OpenAI / Anthropic / Ollama Cloud / local Ollama) with unique scripts
 - Admin settings UI (`/admin`) with provider + model dropdowns, localhost-or-token access
+- **Ollama Cloud hardened** — strips `:cloud` for `ollama.com`, higher reply budget for thinking models, curated cloud catalog, custom model id tucked under Advanced (blocks API-key autofill into the model field)
+- **Spawn / combat stability** — armor/weapon ranks no longer depend on a missing global `_` (was NaN HP → instant death + blank screen); native `Map` preserved so `fetch()` / AI calls don’t crash the server
 - Custom soundtrack with quiet crossfades, combat cues, Enemy Defeated sting
 - Credits / dedication art for Mozilla + original creators
-- Client UI polish: crisp pixels, fixed mobile death screen, credits fit, chat NPC mode, AI HUD indicator, same-origin connect
+- Client UI polish: crisp pixels, fixed mobile death screen, credits fit, chat NPC mode, AI HUD indicator, same-origin connect, faster classic NPC fallback when AI is slow
 
 ---
 
@@ -66,8 +68,10 @@ Goal: smarter NPCs and clearer multiplayer social feel.
 
 | Item | Notes |
 |------|--------|
+| Ollama Cloud reliability | **Done** — model name normalization, thinking-token budget, fail-fast config errors, admin UX so dropdown wins over autofill |
+| Faster NPC fallback | **Done** — client falls back to classic scripts ~3.5s if AI is silent |
 | Per-NPC memory across sessions | Tied to persistence |
-| Safer AI prompts / rate limits | Already partially in place — expand |
+| Safer AI prompts / rate limits | Partially in place — expand (per-IP limits, abuse caps) |
 | In-game “AI on/off” indicator | **Done** — HUD pill via public `/api/ai-status` (no keys in the client) |
 | Chat UX | **Done** — NPC vs world chat placeholder + tint when targeting an NPC |
 | Voice / streaming (later) | Out of scope until text AI is solid |
@@ -80,8 +84,8 @@ Goal: easy for collaborators to ship without breaking the revival.
 
 | Item | Notes |
 |------|--------|
-| Contributor guide | How to run, `/admin`, music, map tools |
-| CI smoke test | Boot server + `/status` + static `/admin` |
+| Contributor guide | How to run, `/admin`, music, map tools, Ollama Cloud tips |
+| CI smoke test | Boot server + `/status` + static `/admin` + spawn HP sanity |
 | Default branch clarity | `main` and `master` kept in sync for now |
 | Issue / project boards | Track roadmap items as GitHub issues |
 | Code of conduct / contributing | Friendly defaults for a public revival |
